@@ -9,8 +9,9 @@ public class SpaceShooterGame extends Game {
 	@Override
 	public void create() {
 		gameScreen = new GameScreen();
-//		
-//		setScreen(gameScreen);
+//		установить экран лаунчер 
+		//переходим на экран игры
+		setScreen(gameScreen);
 	}
 
 

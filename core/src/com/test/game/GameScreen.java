@@ -1,5 +1,6 @@
 package com.test.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -17,10 +18,15 @@ class GameScreen implements Screen {
 
     //graphics
     private SpriteBatch batch;
-    private Texture background;
+//    фон
+    private Texture[] backgrounds;
+    private float backgroundHeight;
 
     //timing
-    private int backgroundOffset;
+//    смещение фона 
+    private float[] backgroundOffsets = {0, 0, 0, 0};
+//    максимальная Скорость Прокрутки фона
+    private float backgroundMaxScrollingSpeed;
 
     //world parameters
     private final int WORLD_WIDTH = 72;
@@ -31,9 +37,15 @@ class GameScreen implements Screen {
     	camera = new OrthographicCamera();
 //    	видовой экран
         viewport = new StretchViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
-
-        background = new Texture("fone2.png");
-        backgroundOffset = 0;
+        
+//        фон имеет 4 изображение 
+        backgrounds = new Texture[4];
+        backgrounds[0] = new Texture("Starscape00.png");
+        backgrounds[1] = new Texture("Starscape01.png");
+        backgrounds[2] = new Texture("Starscape02.png");
+        backgrounds[3] = new Texture("Starscape03.png");
+//скорость прокрутки по высое 
+        backgroundMaxScrollingSpeed = (float) (WORLD_HEIGHT) / 4;
 //    ресует
         batch = new SpriteBatch();
     }
@@ -44,20 +56,34 @@ class GameScreen implements Screen {
         batch.begin();
 
         //scrolling background
-//        смещения фона 
-        backgroundOffset++;
-//        если равно ноль то опятьна ноль 
-        if (backgroundOffset % WORLD_HEIGHT == 0) {
-            backgroundOffset = 0;
-        }
-        
-//картинка скорость координаты 
-//        ресуем 
-        batch.draw(background, 0, -backgroundOffset, WORLD_WIDTH, WORLD_HEIGHT);
-        batch.draw(background, 0, -backgroundOffset + WORLD_HEIGHT, WORLD_WIDTH, WORLD_HEIGHT);
+        renderBackground(deltaTime);
 
         batch.end();
+        }
+//        создать фон 
+    private void renderBackground(float deltaTime) {
+//смещение фона  время умноженое на максимально время прокрутки 
+        backgroundOffsets[0] += deltaTime * backgroundMaxScrollingSpeed / 8;
+        backgroundOffsets[1] += deltaTime * backgroundMaxScrollingSpeed / 4;
+        backgroundOffsets[2] += deltaTime * backgroundMaxScrollingSpeed / 2;
+        backgroundOffsets[3] += deltaTime * backgroundMaxScrollingSpeed;
+
+        //draw each background layer
+        for (int layer = 0; layer < backgroundOffsets.length; layer++) {
+            if (backgroundOffsets[layer] > WORLD_HEIGHT) {
+                backgroundOffsets[layer] = 0;
+            }
+            batch.draw(backgrounds[layer],
+                    0,
+                    -backgroundOffsets[layer],
+                    WORLD_WIDTH, WORLD_HEIGHT);
+            batch.draw(backgrounds[layer],
+                    0,
+                    -backgroundOffsets[layer] + WORLD_HEIGHT,
+                    WORLD_WIDTH, WORLD_HEIGHT);
+        }
     }
+
     //маштабировать 
     @Override
     public void resize(int width, int height) {
