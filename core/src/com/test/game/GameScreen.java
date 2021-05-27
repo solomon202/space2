@@ -62,21 +62,26 @@ class GameScreen implements Screen {
         }
 //        создать фон 
     private void renderBackground(float deltaTime) {
-//смещение фона  время умноженое на максимально время прокрутки 
-        backgroundOffsets[0] += deltaTime * backgroundMaxScrollingSpeed / 8;
-        backgroundOffsets[1] += deltaTime * backgroundMaxScrollingSpeed / 4;
-        backgroundOffsets[2] += deltaTime * backgroundMaxScrollingSpeed / 2;
+//смещение фона  время умноженое на максимально время прокрутки делим на время 
+        backgroundOffsets[0] += deltaTime * backgroundMaxScrollingSpeed /8;
+        backgroundOffsets[1] += deltaTime * backgroundMaxScrollingSpeed /4 ;
+        backgroundOffsets[2] += deltaTime * backgroundMaxScrollingSpeed /2;
         backgroundOffsets[3] += deltaTime * backgroundMaxScrollingSpeed;
 
-        //draw each background layer
+        //draw each background layer нарисуйте каждый фоновый слой
+//        пробежать 
         for (int layer = 0; layer < backgroundOffsets.length; layer++) {
+//        	если высота меньше 
             if (backgroundOffsets[layer] > WORLD_HEIGHT) {
                 backgroundOffsets[layer] = 0;
             }
+//            метод где происходит отрисовка кртинки по номеру расположение 
+//       минус  смещения фона по высоте 
             batch.draw(backgrounds[layer],
-                    0,
+                  0,
                     -backgroundOffsets[layer],
                     WORLD_WIDTH, WORLD_HEIGHT);
+//            следующая 
             batch.draw(backgrounds[layer],
                     0,
                     -backgroundOffsets[layer] + WORLD_HEIGHT,
