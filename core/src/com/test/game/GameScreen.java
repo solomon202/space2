@@ -58,7 +58,7 @@ class GameScreen implements Screen {
       //настройка атласа текстур
         textureAtlas = new TextureAtlas("images.atlas");
         
-//        фон имеет 4 изображение 
+       //фон имеет 4 изображение 
       //настройка фона
         backgrounds = new TextureRegion[4];
         backgrounds[0] = textureAtlas.findRegion("Starscape00");
