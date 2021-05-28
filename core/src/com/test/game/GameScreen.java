@@ -1,11 +1,12 @@
 package com.test.game;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 //игровой экран реалезует экран 
@@ -18,9 +19,19 @@ class GameScreen implements Screen {
 
     //graphics
     private SpriteBatch batch;
+//    текстура 
+    private TextureAtlas textureAtlas;
 //    фон
-    private Texture[] backgrounds;
+//    часть тестуры фоновые области текстур
+    private TextureRegion[] backgrounds;
+//    высота фона в мировых единицах измерения
     private float backgroundHeight;
+    
+    
+//    Регион текстур Регион текстур игроков, регион текстур игроков, регион текстур игроков, регион текстур врагов,
+    private TextureRegion playerShipTextureRegion, playerShieldTextureRegion,
+    enemyShipTextureRegion, enemyShieldTextureRegion,
+    playerLaserTextureRegion, enemyLaserTextureRegion;
 
     //timing
 //    смещение фона 
@@ -31,6 +42,11 @@ class GameScreen implements Screen {
     //world parameters
     private final int WORLD_WIDTH = 72;
     private final int WORLD_HEIGHT = 128;
+    
+    
+    
+    private Ship playerShip;
+    private Ship enemyShip;
 
     GameScreen() {
 //камера работа с проекциями 
@@ -38,14 +54,41 @@ class GameScreen implements Screen {
 //    	видовой экран
         viewport = new StretchViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         
+        
+      //настройка атласа текстур
+        textureAtlas = new TextureAtlas("images.atlas");
+        
 //        фон имеет 4 изображение 
-        backgrounds = new Texture[4];
-        backgrounds[0] = new Texture("Starscape00.png");
-        backgrounds[1] = new Texture("Starscape01.png");
-        backgrounds[2] = new Texture("Starscape02.png");
-        backgrounds[3] = new Texture("Starscape03.png");
+      //настройка фона
+        backgrounds = new TextureRegion[4];
+        backgrounds[0] = textureAtlas.findRegion("Starscape00");
+        backgrounds[1] = textureAtlas.findRegion("Starscape01");
+        backgrounds[2] = textureAtlas.findRegion("Starscape02");
+        backgrounds[3] = textureAtlas.findRegion("Starscape03");
+
 //скорость прокрутки по высое 
+        backgroundHeight = WORLD_HEIGHT * 2;
         backgroundMaxScrollingSpeed = (float) (WORLD_HEIGHT) / 4;
+        
+        
+        //инициализация областей текстуры
+        playerShipTextureRegion = textureAtlas.findRegion("playerShip2_blue");
+        enemyShipTextureRegion = textureAtlas.findRegion("enemyRed3");
+        playerShieldTextureRegion = textureAtlas.findRegion("shield2");
+        enemyShieldTextureRegion = textureAtlas.findRegion("shield1");
+        enemyShieldTextureRegion.flip(false, true);
+
+        playerLaserTextureRegion= textureAtlas.findRegion("laserBlue03");
+        enemyLaserTextureRegion= textureAtlas.findRegion("laserRed03");
+        
+        //настройка игровых объектов
+        playerShip = new Ship(2, 3, 10, 10,
+                WORLD_WIDTH/2, WORLD_HEIGHT/4,
+                playerShipTextureRegion, playerShieldTextureRegion);
+        enemyShip = new Ship(2, 1, 10, 10,
+                WORLD_WIDTH/2, WORLD_HEIGHT*3/4,
+               enemyShipTextureRegion, enemyShieldTextureRegion);
+        
 //    ресует
         batch = new SpriteBatch();
     }
@@ -57,6 +100,10 @@ class GameScreen implements Screen {
 
         //scrolling background
         renderBackground(deltaTime);
+        //вражеские корабли
+        enemyShip.draw(batch);
+        //корабль игрока
+        playerShip.draw(batch);
 
         batch.end();
         }
