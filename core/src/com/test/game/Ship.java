@@ -3,7 +3,7 @@ package com.test.game;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-class Ship {
+ abstract class Ship {
 
     //характеристики судна
 //	скорость движения
@@ -14,29 +14,59 @@ class Ship {
     //положение и размер
     float xPosition, yPosition; //lower-left corner
     float width, height;
+    
+    
+    
+    //laser information
+    float laserWidth, laserHeight;
+    float laserMovementSpeed;
+    float timeBetweenShots;
+    float timeSinceLastShot = 0;
 
     //graphics
-    TextureRegion shipTexture, shieldTexture;
+    TextureRegion shipTextureRegion, shieldTextureRegion, laserTextureRegion;
+
 //конструктор получает данные инцилиацию папраметров каробля и сылки наклас корабль и щит 
-    public Ship(float movementSpeed, int shield,
-                float width, float height,
-                float xCentre, float yCentre,
-                TextureRegion shipTexture, TextureRegion shieldTexture) {
-        this.movementSpeed = movementSpeed;
-        this.shield = shield;
-        this.xPosition = xCentre - width / 2;
-        this.yPosition = yCentre - height / 2;
-        this.width = width;
-        this.height = height;
-        this.shipTexture = shipTexture;
-        this.shieldTexture = shieldTexture;
+    public Ship(float xCentre, float yCentre,
+            float width, float height,
+            float movementSpeed, int shield,
+            float laserWidth, float laserHeight, float laserMovementSpeed,
+            float timeBetweenShots,
+            TextureRegion shipTextureRegion, TextureRegion shieldTextureRegion,
+            TextureRegion laserTextureRegion) {
+    this.movementSpeed = movementSpeed;
+    this.shield = shield;
+    this.xPosition = xCentre - width / 2;
+    this.yPosition = yCentre - height / 2;
+    this.width = width;
+    this.height = height;
+    this.laserWidth = laserWidth;
+    this.laserHeight = laserHeight;
+    this.laserMovementSpeed = laserMovementSpeed;
+    this.timeBetweenShots = timeBetweenShots;
+    this.shipTextureRegion = shipTextureRegion;
+    this.shieldTextureRegion = shieldTextureRegion;
+    this.laserTextureRegion = laserTextureRegion;
+}
+    
+    
+    public void update(float deltaTime) {
+        timeSinceLastShot += deltaTime;
     }
+
+    
+    public boolean canFireLaser() {
+        return (timeSinceLastShot - timeBetweenShots >= 0);
+    }
+    
+    
+    public abstract Laser[] fireLasers();
+    
 //рисуем получаем ссылку длЯ метода 
     public void draw(Batch batch) {
-        batch.draw(shipTexture, xPosition, yPosition, width, height);
-//        если щит меньше нуля то защита то ресуем снова 
+        batch.draw(shipTextureRegion, xPosition, yPosition, width, height);
         if (shield > 0) {
-            batch.draw(shieldTexture, xPosition, yPosition, width, height);
+            batch.draw(shieldTextureRegion, xPosition, yPosition, width, height);
         }
     }
 }

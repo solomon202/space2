@@ -3,12 +3,14 @@ package com.test.game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
+import java.util.LinkedList;
+import java.util.ListIterator;
 //игровой экран реалезует экран 
 class GameScreen implements Screen {
 
@@ -23,6 +25,7 @@ class GameScreen implements Screen {
     private TextureAtlas textureAtlas;
 //    фон
 //    часть тестуры фоновые области текстур
+//    выделяем память для фона чтобы можно было пробежатся по классам 
     private TextureRegion[] backgrounds;
 //    высота фона в мировых единицах измерения
     private float backgroundHeight;
@@ -47,6 +50,9 @@ class GameScreen implements Screen {
     
     private Ship playerShip;
     private Ship enemyShip;
+//    создаем лист лазер 
+    private LinkedList<Laser> playerLaserList;
+    private LinkedList<Laser> enemyLaserList;
 
     GameScreen() {
 //камера работа с проекциями 
@@ -56,6 +62,7 @@ class GameScreen implements Screen {
         
         
       //настройка атласа текстур
+//        выделяем память для текстур 
         textureAtlas = new TextureAtlas("images.atlas");
         
        //фон имеет 4 изображение 
@@ -82,12 +89,22 @@ class GameScreen implements Screen {
         enemyLaserTextureRegion= textureAtlas.findRegion("laserRed03");
         
         //настройка игровых объектов
-        playerShip = new Ship(2, 3, 10, 10,
-                WORLD_WIDTH/2, WORLD_HEIGHT/4,
-                playerShipTextureRegion, playerShieldTextureRegion);
-        enemyShip = new Ship(2, 1, 10, 10,
-                WORLD_WIDTH/2, WORLD_HEIGHT*3/4,
-               enemyShipTextureRegion, enemyShieldTextureRegion);
+        //set up game objects
+//        передаем в констркутор 
+        playerShip = new PlayerShip(WORLD_WIDTH / 2, WORLD_HEIGHT / 4,
+                10, 10,
+                2, 3,
+                0.4f, 4, 45, 0.5f,
+                playerShipTextureRegion, playerShieldTextureRegion, playerLaserTextureRegion);
+
+        enemyShip = new EnemyShip(WORLD_WIDTH / 2, WORLD_HEIGHT * 3 / 4,
+                10, 10,
+                2, 1,
+                0.3f, 5, 50, 0.8f,
+                enemyShipTextureRegion, enemyShieldTextureRegion ,enemyLaserTextureRegion);
+//создали лазеры 
+        playerLaserList = new LinkedList<>();
+        enemyLaserList = new LinkedList<>();
         
 //    ресует
         batch = new SpriteBatch();
@@ -97,6 +114,9 @@ class GameScreen implements Screen {
     public void render(float deltaTime) {
 //    	происходит рисование 
         batch.begin();
+        
+        playerShip.update(deltaTime);
+        enemyShip.update(deltaTime);
 
         //scrolling background
         renderBackground(deltaTime);
@@ -104,9 +124,48 @@ class GameScreen implements Screen {
         enemyShip.draw(batch);
         //корабль игрока
         playerShip.draw(batch);
+      //лазеры
+      //создание новых лазеров
+      //лазеры игроков
+        if (playerShip.canFireLaser()) {
+            Laser[] lasers = playerShip.fireLasers();
+            for (Laser laser: lasers) {
+                playerLaserList.add(laser);
+            }
+        }
+      //вражеские лазеры
+        if (enemyShip.canFireLaser()) {
+            Laser[] lasers = enemyShip.fireLasers();
+            for (Laser laser: lasers) {
+                enemyLaserList.add(laser);
+            }
+        }
+
+      //нарисуйте лазеры
+      //удаление старых лазеров
+        ListIterator<Laser> iterator = playerLaserList.listIterator();
+        while(iterator.hasNext()) {
+            Laser laser = iterator.next();
+            laser.draw(batch);
+            laser.yPosition += laser.movementSpeed*deltaTime;
+            if (laser.yPosition > WORLD_HEIGHT) {
+                iterator.remove();
+            }
+        }
+        iterator = enemyLaserList.listIterator();
+        while(iterator.hasNext()) {
+            Laser laser = iterator.next();
+            laser.draw(batch);
+            laser.yPosition -= laser.movementSpeed*deltaTime;
+            if (laser.yPosition + laser.height < 0) {
+                iterator.remove();
+            }
+        }
+
+        //explosions
 
         batch.end();
-        }
+    }
 //        создать фон 
     private void renderBackground(float deltaTime) {
 //смещение фона  время умноженое на максимально время прокрутки делим на время 
@@ -124,17 +183,11 @@ class GameScreen implements Screen {
             }
 //            метод где происходит отрисовка кртинки по номеру расположение 
 //       минус  смещения фона по высоте 
-            batch.draw(backgrounds[layer],
-                  0,
-                    -backgroundOffsets[layer],
-                    WORLD_WIDTH, WORLD_HEIGHT);
-//            следующая 
-            batch.draw(backgrounds[layer],
-                    0,
-                    -backgroundOffsets[layer] + WORLD_HEIGHT,
-                    WORLD_WIDTH, WORLD_HEIGHT);
+            batch.draw(backgrounds[layer], 0, -backgroundOffsets[layer],
+                    WORLD_WIDTH, backgroundHeight);
         }
     }
+
 
     //маштабировать 
     @Override
