@@ -143,15 +143,27 @@ class GameScreen implements Screen {
 
       //нарисуйте лазеры
       //удаление старых лазеров
+//        вставляем в переменную сылку на метод  метод 
+//        список лазеров
         ListIterator<Laser> iterator = playerLaserList.listIterator();
+//        Этот метод добавляет элемент в коллекцию на следующую позицию после элемента, полученного с помощью метода next(). boolean hasNext() 
+//        Этот метод проверяет, есть ли в коллекции следующий элемент.
+//        hasNext(): возвращает true, если в коллекции имеется следующий элемент, иначе возвращает false
         while(iterator.hasNext()) {
+//        	next(): возвращает текущий элемент и переходит к следующему, если такого нет, то генерируется исключение NoSuchElementException
             Laser laser = iterator.next();
+//            рисует лазер 
             laser.draw(batch);
+//            скорость лазера у + время  на умноженую частоту кадра 
+            // двигаем лазер 
             laser.yPosition += laser.movementSpeed*deltaTime;
+           // если высота по у больше 
             if (laser.yPosition > WORLD_HEIGHT) {
-                iterator.remove();
+           //удаляем  итератор 
+            	iterator.remove();
             }
         }
+//        лазер противника 
         iterator = enemyLaserList.listIterator();
         while(iterator.hasNext()) {
             Laser laser = iterator.next();
