@@ -124,6 +124,50 @@ class GameScreen implements Screen {
         enemyShip.draw(batch);
         //корабль игрока
         playerShip.draw(batch);
+        
+        //lasers
+        renderLasers(deltaTime);
+
+        //обнаружение столкновений между лазерами и кораблями
+        detectCollisions();
+
+        //explosions
+        renderExplosions(deltaTime);
+        
+        batch.end();
+        }
+//    обнаружение столкновений
+    private void detectCollisions() {
+        //для каждого лазера игрока проверьте, пересекается ли он с вражеским кораблем
+        ListIterator<Laser> iterator = playerLaserList.listIterator();
+        while (iterator.hasNext()) {
+            Laser laser = iterator.next();
+            if (enemyShip.intersects(laser.getBoundingBox())) {
+                //контакт с вражеским кораблем
+                enemyShip.hit(laser);
+                iterator.remove();
+            }
+        }
+        //for each enemy laser, check whether it intersects the player ship
+        iterator = enemyLaserList.listIterator();
+        while (iterator.hasNext()) {
+            Laser laser = iterator.next();
+            if (playerShip.intersects(laser.getBoundingBox())) {
+                //contact with player ship
+                playerShip.hit(laser);
+                iterator.remove();
+            }
+        }
+    }
+
+    private void renderExplosions(float deltaTime) {
+
+    }
+
+    private void renderLasers(float deltaTime) {
+    
+    
+    
       //лазеры
       //создание новых лазеров
       //лазеры игроков
@@ -176,7 +220,7 @@ class GameScreen implements Screen {
 
         //explosions
 
-        batch.end();
+   
     }
 //        создать фон 
     private void renderBackground(float deltaTime) {

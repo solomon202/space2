@@ -2,6 +2,7 @@ package com.test.game;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 
 class Laser {
 
@@ -29,4 +30,9 @@ class Laser {
     public void draw(Batch batch) {
         batch.draw(textureRegion, xPosition, yPosition, width, height);
     }
+    
+    public Rectangle getBoundingBox() {
+        return new Rectangle(xPosition, yPosition, width, height);
+    
+}
 }
