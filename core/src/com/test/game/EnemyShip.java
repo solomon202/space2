@@ -22,17 +22,14 @@ class EnemyShip extends Ship {
     @Override
 //    метод класс лазер 
     public Laser[] fireLasers() {
-//    	выделить память на 2 
         Laser[] laser = new Laser[2];
-//       1 лазер  заполняем  позицыя по х и у размер скорость изображение 
-        laser[0] = new Laser(xPosition + width * 0.18f, yPosition - laserHeight,
+        laser[0] = new Laser(boundingBox.x + boundingBox.width * 0.18f, boundingBox.y - laserHeight,
                 laserWidth, laserHeight,
                 laserMovementSpeed, laserTextureRegion);
-//        второй лазер со второго крыла 
-        laser[1] = new Laser(xPosition + width * 0.82f, yPosition  - laserHeight,
+        laser[1] = new Laser(boundingBox.x + boundingBox.width * 0.82f, boundingBox.y - laserHeight,
                 laserWidth, laserHeight,
                 laserMovementSpeed, laserTextureRegion);
-//время С Момента Последнего Выстрела
+
         timeSinceLastShot = 0;
 
         return laser;
@@ -41,10 +38,10 @@ class EnemyShip extends Ship {
     @Override
 //    рисуем корабль 
     public void draw(Batch batch) {
-        batch.draw(shipTextureRegion, xPosition, yPosition, width, height);
-//        если щит больше 0 ресуем щит 
+        batch.draw(shipTextureRegion, boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
         if (shield > 0) {
-            batch.draw(shieldTextureRegion, xPosition, yPosition-height*0.2f, width, height);
+            batch.draw(shieldTextureRegion, boundingBox.x, boundingBox.y - boundingBox.height * 0.2f, boundingBox.width, boundingBox.height);
         }
     }
 }
+  

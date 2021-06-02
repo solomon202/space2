@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ListIterator;
 //игровой экран реалезует экран 
@@ -138,12 +139,12 @@ class GameScreen implements Screen {
         }
 //    обнаружение столкновений
     private void detectCollisions() {
-        //для каждого лазера игрока проверьте, пересекается ли он с вражеским кораблем
+        //for each player laser, check whether it intersects an enemy ship
         ListIterator<Laser> iterator = playerLaserList.listIterator();
         while (iterator.hasNext()) {
             Laser laser = iterator.next();
-            if (enemyShip.intersects(laser.getBoundingBox())) {
-                //контакт с вражеским кораблем
+            if (enemyShip.intersects(laser.boundingBox)) {
+                //contact with enemy ship
                 enemyShip.hit(laser);
                 iterator.remove();
             }
@@ -152,7 +153,7 @@ class GameScreen implements Screen {
         iterator = enemyLaserList.listIterator();
         while (iterator.hasNext()) {
             Laser laser = iterator.next();
-            if (playerShip.intersects(laser.getBoundingBox())) {
+            if (playerShip.intersects(laser.boundingBox)) {
                 //contact with player ship
                 playerShip.hit(laser);
                 iterator.remove();
@@ -173,16 +174,13 @@ class GameScreen implements Screen {
       //лазеры игроков
         if (playerShip.canFireLaser()) {
             Laser[] lasers = playerShip.fireLasers();
-            for (Laser laser: lasers) {
-                playerLaserList.add(laser);
-            }
+            playerLaserList.addAll(Arrays.asList(lasers));
         }
+        
       //вражеские лазеры
         if (enemyShip.canFireLaser()) {
             Laser[] lasers = enemyShip.fireLasers();
-            for (Laser laser: lasers) {
-                enemyLaserList.add(laser);
-            }
+            enemyLaserList.addAll(Arrays.asList(lasers));
         }
 
       //нарисуйте лазеры
@@ -198,30 +196,23 @@ class GameScreen implements Screen {
             Laser laser = iterator.next();
 //            рисует лазер 
             laser.draw(batch);
-//            скорость лазера у + время  на умноженую частоту кадра 
-            // двигаем лазер 
-            laser.yPosition += laser.movementSpeed*deltaTime;
-           // если высота по у больше 
-            if (laser.yPosition > WORLD_HEIGHT) {
-           //удаляем  итератор 
-            	iterator.remove();
-            }
-        }
-//        лазер противника 
-        iterator = enemyLaserList.listIterator();
-        while(iterator.hasNext()) {
-            Laser laser = iterator.next();
-            laser.draw(batch);
-            laser.yPosition -= laser.movementSpeed*deltaTime;
-            if (laser.yPosition + laser.height < 0) {
+            laser.boundingBox.y += laser.movementSpeed * deltaTime;
+//                  laser.boundingBox.y += laser.movementSpeed * deltaTime;
+            if (laser.boundingBox.y > WORLD_HEIGHT) {
                 iterator.remove();
             }
         }
-
-        //explosions
-
-   
+        iterator = enemyLaserList.listIterator();
+        while (iterator.hasNext()) {
+            Laser laser = iterator.next();
+            laser.draw(batch);
+            laser.boundingBox.y -= laser.movementSpeed * deltaTime;
+            if (laser.boundingBox.y + laser.boundingBox.height < 0) {
+                iterator.remove();
+            }
+        }
     }
+
 //        создать фон 
     private void renderBackground(float deltaTime) {
 //смещение фона  время умноженое на максимально время прокрутки делим на время 

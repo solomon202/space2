@@ -12,9 +12,7 @@ import com.badlogic.gdx.math.Rectangle;
 //    щит
     int shield;
 
-    //положение и размер
-    float xPosition, yPosition; //lower-left corner
-    float width, height;
+    
 //    Прямоугольная ограничивающая рамка;
     Rectangle boundingBox;
     
@@ -39,11 +37,7 @@ import com.badlogic.gdx.math.Rectangle;
     this.movementSpeed = movementSpeed;
     this.shield = shield;
 
-    this.xPosition = xCentre - width / 2;
-    this.yPosition = yCentre - height / 2;
-    this.width = width;
-    this.height = height;
-    this.boundingBox = new Rectangle(xPosition,yPosition,width,height);
+    this.boundingBox = new Rectangle(xCentre - width / 2, yCentre - height / 2, width, height);
 
     this.laserWidth = laserWidth;
     this.laserHeight = laserHeight;
@@ -53,37 +47,31 @@ import com.badlogic.gdx.math.Rectangle;
     this.shieldTextureRegion = shieldTextureRegion;
     this.laserTextureRegion = laserTextureRegion;
 }
-    
-    
-    public void update(float deltaTime) {
-    	boundingBox.set(xPosition,yPosition,width,height); 
-        timeSinceLastShot += deltaTime;
-    }
 
-    public boolean canFireLaser() {
-        return (timeSinceLastShot - timeBetweenShots >= 0);
-        
+public void update(float deltaTime) {
+    timeSinceLastShot += deltaTime;
+}
+
+public boolean canFireLaser() {
+    return (timeSinceLastShot - timeBetweenShots >= 0);
+}
+
+public abstract Laser[] fireLasers();
+
+public boolean intersects(Rectangle otherRectangle) {
+    return boundingBox.overlaps(otherRectangle);
+}
+
+public void hit(Laser laser) {
+    if (shield > 0) {
+        shield--;
     }
-    
-    
-    public abstract Laser[] fireLasers();
-    public boolean intersects(Rectangle otherRectangle) {
-        return boundingBox.overlaps(otherRectangle);
+}
+
+public void draw(Batch batch) {
+    batch.draw(shipTextureRegion, boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
+    if (shield > 0) {
+        batch.draw(shieldTextureRegion, boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
     }
-    
-    
-    
-    public void hit(Laser laser) {
-        if (shield > 0) {
-            shield--;
-        }
-    }
-    
-//рисуем получаем ссылку длЯ метода 
-    public void draw(Batch batch) {
-        batch.draw(shipTextureRegion, xPosition, yPosition, width, height);
-        if (shield > 0) {
-            batch.draw(shieldTextureRegion, xPosition, yPosition, width, height);
-        }
-    }
+}
 }
